@@ -49,7 +49,7 @@ namespace Sorts {
             dataGridView1.Rows[dataGridView1.Rows.Count - 1].Cells[0].Value = dataGridView1.Rows.Count - 1;
         }
 
-        private async void btSort_Click(object sender, EventArgs e) {
+        private void btSort_Click(object sender, EventArgs e) {
             chartBubble.Titles[0].Text = "Bubble";
             chartBogo.Titles[0].Text = "BOGO";
             chartFast.Titles[0].Text = "Fast";
@@ -58,35 +58,69 @@ namespace Sorts {
 
             double[] array = new double[items.Count];
             array = addArray(array);
+
+            double[] arrayBubble = new double[items.Count];
+            double[] arrayInsert = new double[items.Count];
+            double[] arrayFast = new double[items.Count];
+            double[] arrayShake = new double[items.Count];
+            double[] arrayBogo = new double[items.Count];
+
+            arrayBubble = addArray(arrayBubble);
+            arrayBogo = addArray(arrayBogo);
+            arrayFast = addArray(arrayFast);
+            arrayInsert = addArray(arrayInsert);
+            arrayShake = addArray(arrayShake);
+
+
+            //if (cbBubble.Checked) {
+            //    //await Task.Run(() => { DrawBubbleSortAsync(array); });
+            //    DrawBubbleSortAsync(arrayBubble);
+            //    //DrawBubbleSortAsync(array);
+            //}
+
+            //if (cbInsert.Checked) {
+            //    //await Task.Run(() => { SortInputs(array); });
+            //    SortInputs(arrayInsert);
+            //    //SortInputs(array);
+            //}
+
+            //if (cbFast.Checked) {
+            //    //await Task.Run(() => { FastSort(array); return Task.CompletedTask; });
+            //    //FastSort(arrayFast);
+            //    //FastSort(array);
+            //}
+
+            //if (cbShake.Checked) {
+            //    //await Task.Run(() => { ShakeSort(array); });
+            //    ShakeSort(arrayShake);
+            //}
+
+
+            //if (cbBogo.Checked) {
+            //    //await Task.Run(() => { BogoSort(array); });
+            //    BogoSort(arrayBogo);
+            //}
+
             Parallel.Invoke(
                 () => {
-                    if (cbBubble.Checked) {
-                        //await Task.Run(() => { DrawBubbleSortAsync(array); });
-                        DrawBubbleSortAsync(array);
-                        //DrawBubbleSortAsync(array);
-                    }
-                }, () => {
-                    if (cbInsert.Checked) {
-                        //await Task.Run(() => { SortInputs(array); });
-                        SortInputs(array);
-                        //SortInputs(array);
-                    }
-                }, () => {
                     if (cbFast.Checked) {
-                        //await Task.Run(() => { FastSort(array); return Task.CompletedTask; });
-                        //FastSort(array);
-                        //FastSort(array);
+                        FastSort(arrayFast);
+                    }
+                }, () => {
+                    if (cbBubble.Checked) {
+                        DrawBubbleSortAsync(arrayBubble);
+                    }
+                }, () => {
+                    if (cbBogo.Checked) {
+                        BogoSort(arrayBogo);
                     }
                 }, () => {
                     if (cbShake.Checked) {
-                        //await Task.Run(() => { ShakeSort(array); });
-                        ShakeSort(array);
+                        ShakeSort(arrayShake);
                     }
                 }, () => {
-
-                    if (cbBogo.Checked) {
-                        //await Task.Run(() => { BogoSort(array); });
-                        BogoSort(array);
+                    if (cbInsert.Checked) {
+                        SortInputs(arrayInsert);
                     }
                 });
         }
@@ -120,15 +154,15 @@ namespace Sorts {
                         array[j] = temp;
                         if (cbVisual.Checked) {
                             sw.Stop();
-                            //Invoke(new Action(() => Visualization(chartBubble, array)));
-                            Visualization(chartBubble, array);
+                            Invoke(new Action(() => Visualization(chartBubble, array)));
+                            //Visualization(chartBubble, doubles);
                             sw.Start();
                         }
 
                     }
                 }
             }
-            Wait(1);
+           // Wait(1);
             sw.Stop();
             DrawTimeResult(chartBubble, sw.ElapsedMilliseconds.ToString());
             //chartBubble.Titles[0].Text += " " + sw.ElapsedMilliseconds.ToString() + "мс";
@@ -152,8 +186,8 @@ namespace Sorts {
                     j--;
                     if (cbVisual.Checked) {
                         SW.Stop();
-                        //Invoke(new Action(() => Visualization(chartInputs, array)));
-                        Visualization(chartInputs, array);
+                        Invoke(new Action(() => Visualization(chartInputs, array)));
+                        //Visualization(chartInputs, array);
                         SW.Start();
                     }
                 }
@@ -162,7 +196,6 @@ namespace Sorts {
             SW.Stop();
             DrawTimeResult(chartInputs, SW.ElapsedMilliseconds.ToString());
 
-            //chartInputs.Titles[0].Text += " " + SW.ElapsedMilliseconds.ToString() + "мс";
             return array;
         }
         #endregion
@@ -170,7 +203,7 @@ namespace Sorts {
         #region shake
         private double[] ShakeSort(double[] Array) {
             Stopwatch SW = new Stopwatch();
-            
+
             SW.Start();
             int left = 0,
             right = Array.Length - 1;
@@ -231,7 +264,7 @@ namespace Sorts {
                 if (cbVisual.Checked) {
                     SW.Stop();
                     Invoke(new Action(() => Visualization(chartFast, Array)));
-                   // Visualization(chartFast, Array);
+                    // Visualization(chartFast, Array);
                     SW.Start();
                 }
                 rightIndexOfSubset = stack.Pop();
@@ -325,13 +358,15 @@ namespace Sorts {
             return true;
         }
 
-        public void Visualization(Chart c, double[] Array) {
+        public Chart Visualization(Chart c, double[] Array) {
             c.Series[0].Points.Clear();
 
             for (int i = 0; i < Array.Length; i++) {
                 c.Series[0].Points.AddY(Array[i]);
             }
             Wait(0.001);
+
+            return c;
         }
 
         private void Wait(double seconds) {
@@ -373,9 +408,9 @@ namespace Sorts {
 
 
             Random Random = new Random();
-            double[] RandomArray = new double[100];
+            double[] RandomArray = new double[55];
             for (int i = 0; i < RandomArray.Length; i++) {
-                RandomArray[i] = Random.Next(1, 10);
+                RandomArray[i] = Random.Next(1, 100);
                 dataGridView1.Rows.Add(i, RandomArray[i]);
             }
 
